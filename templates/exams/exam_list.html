@@ -1,0 +1,84 @@
+{% extends "core/base.html" %}
+{% block title %}Examinations{% endblock %}
+{% block page_title %}Examinations{% endblock %}
+{% block breadcrumb %}<span class="sep">›</span> Exams{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2>Examination Management</h2>
+    <p>Schedule and manage all examinations</p>
+  </div>
+  <a href="{% url 'exam-create' %}" class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Schedule Exam
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <form method="get" class="toolbar" style="margin:0;flex:1;">
+      <div class="search-wrap">
+        <svg class="search-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="q" value="{{ q }}" class="search-input" placeholder="Search exams…"/>
+      </div>
+      <select name="type" class="filter-select">
+        <option value="">All Types</option>
+        <option value="Midterm" {% if request.GET.type == 'Midterm' %}selected{% endif %}>Midterm</option>
+        <option value="Final" {% if request.GET.type == 'Final' %}selected{% endif %}>Final</option>
+        <option value="Quiz" {% if request.GET.type == 'Quiz' %}selected{% endif %}>Quiz</option>
+        <option value="Assignment" {% if request.GET.type == 'Assignment' %}selected{% endif %}>Assignment</option>
+      </select>
+      <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+      {% if q or request.GET.type %}<a href="{% url 'exam-list' %}" class="btn btn-secondary btn-sm">Clear</a>{% endif %}
+    </form>
+    <span class="badge badge-pink" style="background:var(--pink-soft);color:var(--pink);">{{ exams.count }} exam{{ exams.count|pluralize }}</span>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="examTable">
+      <thead>
+        <tr><th>#</th><th>Exam Name</th><th>Subject</th><th>Type</th><th>Date</th><th>Max Marks</th><th>Pass Marks</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for e in exams %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">{{ forloop.counter }}</td>
+          <td style="font-weight:600;">{{ e.name }}</td>
+          <td><span class="badge badge-purple" style="background:var(--purple-soft);color:var(--purple);">{{ e.subject.code }}</span></td>
+          <td>
+            {% if e.exam_type == "Final" %}<span class="badge badge-danger">Final</span>
+            {% elif e.exam_type == "Midterm" %}<span class="badge badge-warning">Midterm</span>
+            {% elif e.exam_type == "Quiz" %}<span class="badge badge-info">Quiz</span>
+            {% else %}<span class="badge badge-muted">{{ e.exam_type }}</span>{% endif %}
+          </td>
+          <td style="font-size:13px;">{{ e.exam_date }}</td>
+          <td style="text-align:center;font-weight:600;">{{ e.max_marks }}</td>
+          <td style="text-align:center;">{{ e.pass_marks }}</td>
+          <td>{% if e.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-muted">Inactive</span>{% endif %}</td>
+          <td>
+            <div class="btn-group">
+              <a href="{% url 'exam-update' e.pk %}" class="btn btn-warning btn-sm" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </a>
+              <form id="del-{{ e.pk }}" method="post" action="{% url 'exam-delete' e.pk %}">{% csrf_token %}</form>
+              <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('del-{{ e.pk }}','{{ e.name }}')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9">
+          <div class="empty-state">
+            <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+            <h3>No Exams Scheduled</h3>
+            <p>Schedule your first examination to get started.</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

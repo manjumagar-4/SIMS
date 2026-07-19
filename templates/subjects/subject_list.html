@@ -1,0 +1,72 @@
+{% extends "core/base.html" %}
+{% block title %}Subjects{% endblock %}
+{% block page_title %}Subjects{% endblock %}
+{% block breadcrumb %}<span class="sep">›</span> Subjects{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2>Subject Management</h2>
+    <p>Manage all academic subjects across courses</p>
+  </div>
+  <a href="{% url 'subject-create' %}" class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Subject
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <form method="get" class="toolbar" style="margin:0;flex:1;">
+      <div class="search-wrap">
+        <svg class="search-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="q" value="{{ q }}" class="search-input" placeholder="Search subjects…"/>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      {% if q %}<a href="{% url 'subject-list' %}" class="btn btn-secondary btn-sm">Clear</a>{% endif %}
+    </form>
+    <span class="badge badge-purple" style="background:var(--purple-soft);color:var(--purple);">{{ subjects.count }} subject{{ subjects.count|pluralize }}</span>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="subjectTable">
+      <thead>
+        <tr><th>#</th><th>Code</th><th>Subject Name</th><th>Course</th><th>Semester</th><th>Credit Hrs</th><th>Faculty</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for s in subjects %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">{{ forloop.counter }}</td>
+          <td><span class="badge badge-purple" style="background:var(--purple-soft);color:var(--purple);">{{ s.code }}</span></td>
+          <td style="font-weight:600;">{{ s.name }}</td>
+          <td><span class="badge badge-muted">{{ s.course.code|default:"—" }}</span></td>
+          <td style="text-align:center;">{{ s.semester }}</td>
+          <td style="text-align:center;">{{ s.credit_hours|default:"—" }}</td>
+          <td style="font-size:13px;color:var(--text-secondary);">{{ s.faculty.name|default:"—" }}</td>
+          <td>{% if s.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-muted">Inactive</span>{% endif %}</td>
+          <td>
+            <div class="btn-group">
+              <a href="{% url 'subject-update' s.pk %}" class="btn btn-warning btn-sm" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </a>
+              <form id="del-{{ s.pk }}" method="post" action="{% url 'subject-delete' s.pk %}">{% csrf_token %}</form>
+              <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('del-{{ s.pk }}','{{ s.name }}')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9">
+          <div class="empty-state">
+            <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+            <h3>No Subjects Found</h3>
+            <p>Add your first subject to get started.</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

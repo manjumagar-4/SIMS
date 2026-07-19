@@ -1,0 +1,139 @@
+{% extends "core/base.html" %}
+{% block title %}{{ student.full_name }} — Result Sheet{% endblock %}
+{% block page_title %}Result Sheet{% endblock %}
+{% block breadcrumb %}
+  <span class="sep">›</span> <a href="{% url 'result-report' %}">Reports</a>
+  <span class="sep">›</span> {{ student.full_name }}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2>Result Sheet</h2>
+    <p>{{ student.full_name }} &middot; {{ student.student_id }}</p>
+  </div>
+  <div class="btn-group">
+    <a href="{% url 'student-detail' student.pk %}" class="btn btn-secondary">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Profile
+    </a>
+    <a href="{% url 'result-report' %}" class="btn btn-secondary">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg>
+      Reports
+    </a>
+    <button onclick="window.print()" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print
+    </button>
+  </div>
+</div>
+
+<!-- Student Summary Card -->
+<div class="card" style="margin-bottom:22px;">
+  <div class="detail-profile-bar">
+    {% if student.photo %}
+      <img src="{{ student.photo.url }}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,0.5);" alt="{{ student.full_name }}"/>
+    {% else %}
+      <div class="avatar avatar-lg">{{ student.first_name.0 }}{{ student.last_name.0 }}</div>
+    {% endif %}
+    <div class="detail-profile-info">
+      <h2>{{ student.full_name }}</h2>
+      <p>{{ student.student_id }} &middot; {{ student.course.name|default:"—" }} &middot; Semester {{ student.current_semester }}</p>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+        <span class="badge badge-primary">Total: {{ total }}</span>
+        <span class="badge badge-success">Pass: {{ passed }}</span>
+        <span class="badge badge-danger">Fail: {{ failed }}</span>
+        <span class="badge badge-amber" style="background:var(--accent-soft);color:var(--accent-dark);">Avg: {{ avg_marks }}</span>
+      </div>
+    </div>
+
+    <!-- Summary progress ring area -->
+    <div style="margin-left:auto;text-align:center;padding:0 16px;">
+      <div style="font-family:'Poppins',sans-serif;font-size:32px;font-weight:800;color:var(--primary);">
+        {% if total > 0 %}{{ passed }}/{{ total }}{% else %}—{% endif %}
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Exams Passed</div>
+      {% if total > 0 %}
+      <div class="progress" style="height:8px;margin-top:10px;min-width:120px;">
+        <div class="progress-bar" style="width:{% widthratio passed total 100 %}%;"></div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Result Sheet Table -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Examination Result Sheet
+    </div>
+    <span class="badge badge-primary">{{ results.count }} result{{ results.count|pluralize }}</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Sem</th>
+          <th>Code</th>
+          <th>Subject</th>
+          <th>Exam</th>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Max</th>
+          <th>Pass</th>
+          <th>Obtained</th>
+          <th>%</th>
+          <th>Grade</th>
+          <th>GPA</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">{{ forloop.counter }}</td>
+          <td style="text-align:center;">{{ r.exam.subject.semester }}</td>
+          <td><span class="badge badge-primary">{{ r.exam.subject.code }}</span></td>
+          <td style="font-weight:500;font-size:13px;">{{ r.exam.subject.name }}</td>
+          <td style="font-size:13px;">{{ r.exam.name }}</td>
+          <td>
+            {% if r.exam.exam_type == "Final" %}<span class="badge badge-danger">Final</span>
+            {% elif r.exam.exam_type == "Midterm" %}<span class="badge badge-warning">Midterm</span>
+            {% elif r.exam.exam_type == "Quiz" %}<span class="badge badge-info">Quiz</span>
+            {% else %}<span class="badge badge-muted">{{ r.exam.exam_type }}</span>{% endif %}
+          </td>
+          <td style="font-size:12px;color:var(--text-secondary);">{{ r.exam.exam_date }}</td>
+          <td style="text-align:center;">{{ r.exam.max_marks }}</td>
+          <td style="text-align:center;">{{ r.exam.pass_marks }}</td>
+          <td style="text-align:center;font-weight:700;">
+            {% if r.is_absent %}<span class="badge badge-muted">Absent</span>
+            {% else %}{{ r.marks_obtained }}{% endif %}
+          </td>
+          <td style="text-align:center;font-weight:600;{% if r.percentage >= 80 %}color:var(--success);{% elif r.percentage >= 60 %}color:var(--info);{% elif r.percentage >= 40 %}color:var(--warning);{% else %}color:var(--danger);{% endif %}">
+            {{ r.percentage }}%
+          </td>
+          <td>
+            <span class="badge {% if r.grade == 'A+' or r.grade == 'A' %}badge-success{% elif r.grade == 'F' or r.grade == 'AB' %}badge-danger{% elif r.grade == 'B+' or r.grade == 'B' %}badge-info{% else %}badge-warning{% endif %}">
+              {{ r.grade }}
+            </span>
+          </td>
+          <td style="text-align:center;font-weight:600;">{{ r.grade_point }}</td>
+          <td>{% if r.is_pass %}<span class="badge badge-success">Pass</span>{% else %}<span class="badge badge-danger">Fail</span>{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="14">
+          <div class="empty-state" style="padding:40px;">
+            <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+            <h3>No Results Found</h3>
+            <p>No results have been entered for this student yet.</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

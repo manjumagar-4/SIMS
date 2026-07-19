@@ -1,0 +1,74 @@
+{% extends "core/base.html" %}
+{% block title %}Courses{% endblock %}
+{% block page_title %}Courses{% endblock %}
+{% block breadcrumb %}<span class="sep">›</span> Courses{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2>Course Management</h2>
+    <p>Manage academic programs and courses</p>
+  </div>
+  <a href="{% url 'course-create' %}" class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Course
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <form method="get" class="toolbar" style="margin:0;flex:1;">
+      <div class="search-wrap">
+        <svg class="search-ico" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="q" value="{{ q }}" class="search-input" placeholder="Search courses…"/>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      {% if q %}<a href="{% url 'course-list' %}" class="btn btn-secondary btn-sm">Clear</a>{% endif %}
+    </form>
+    <span class="badge badge-info" style="background:var(--info-soft);color:var(--info);">{{ courses.count }} course{{ courses.count|pluralize }}</span>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table" id="courseTable">
+      <thead>
+        <tr><th>#</th><th>Code</th><th>Course Name</th><th>Duration</th><th>Semesters</th><th>Students</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for c in courses %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">{{ forloop.counter }}</td>
+          <td><span class="badge badge-info" style="background:var(--info-soft);color:var(--info);">{{ c.code }}</span></td>
+          <td>
+            <div style="font-weight:600;font-size:13px;">{{ c.name }}</div>
+            {% if c.description %}<div style="font-size:11px;color:var(--text-muted);">{{ c.description|truncatechars:50 }}</div>{% endif %}
+          </td>
+          <td style="font-size:13px;">{{ c.duration_years }} yr{{ c.duration_years|pluralize }}</td>
+          <td style="text-align:center;">{{ c.total_semesters }} sem{{ c.total_semesters|pluralize }}</td>
+          <td><span class="badge badge-primary">{{ c.student_count }}</span></td>
+          <td>{% if c.is_active %}<span class="badge badge-success">Active</span>{% else %}<span class="badge badge-muted">Inactive</span>{% endif %}</td>
+          <td>
+            <div class="btn-group">
+              <a href="{% url 'course-update' c.pk %}" class="btn btn-warning btn-sm" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </a>
+              <form id="del-{{ c.pk }}" method="post" action="{% url 'course-delete' c.pk %}">{% csrf_token %}</form>
+              <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete('del-{{ c.pk }}','{{ c.name }}')">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">
+          <div class="empty-state">
+            <div class="empty-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+            <h3>No Courses Found</h3>
+            <p>Add your first course to get started.</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

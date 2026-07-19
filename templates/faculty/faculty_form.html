@@ -1,0 +1,76 @@
+{% extends "core/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block breadcrumb %}<span class="sep">›</span> <a href="{% url 'faculty-list' %}">Faculty</a> <span class="sep">›</span> {{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2>{{ title }}</h2>
+    <p>Fill in faculty member details below</p>
+  </div>
+  <a href="{% url 'faculty-list' %}" class="btn btn-secondary">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to List
+  </a>
+</div>
+
+<div class="form-card">
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-section-header">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <h3>Faculty Information</h3>
+    </div>
+    <div class="form-body">
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label class="form-label">Full Name <span class="req">*</span></label>
+          {{ form.name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Employee ID <span class="req">*</span></label>
+          {{ form.employee_id }}
+          {% if form.employee_id.errors %}<span style="color:var(--danger);font-size:12px;">{{ form.employee_id.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address <span class="req">*</span></label>
+          {{ form.email }}
+          {% if form.email.errors %}<span style="color:var(--danger);font-size:12px;">{{ form.email.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          {{ form.phone }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          {{ form.department }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Designation</label>
+          {{ form.designation }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Qualification</label>
+          {{ form.qualification }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hire Date</label>
+          {{ form.hire_date }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Active Status</label>
+          {{ form.is_active }}
+        </div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save Faculty
+      </button>
+      <a href="{% url 'faculty-list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

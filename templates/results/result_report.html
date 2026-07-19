@@ -1,0 +1,246 @@
+{% extends "core/base.html" %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports{% endblock %}
+{% block breadcrumb %}<span class="sep">›</span> <a href="{% url 'result-list' %}">Results</a> <span class="sep">›</span> Reports{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2>Academic Reports</h2>
+    <p>Subject-wise and exam-wise analysis with grade distribution</p>
+  </div>
+  <a href="{% url 'result-list' %}" class="btn btn-secondary">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    All Results
+  </a>
+</div>
+
+<!-- Filter Card -->
+<div class="card" style="margin-bottom:22px;">
+  <div class="card-header">
+    <div class="card-title">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      Filter Report
+    </div>
+  </div>
+  <div class="card-body">
+    <form method="get">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Select Subject</label>
+          <select name="subject" class="form-control" onchange="this.form.submit()">
+            <option value="">— Choose Subject —</option>
+            {% for s in subjects %}
+            <option value="{{ s.pk }}" {% if selected_subject_id == s.pk|stringformat:"s" %}selected{% endif %}>
+              {{ s.code }} — {{ s.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        {% if exams %}
+        <div class="form-group">
+          <label class="form-label">Select Exam</label>
+          <select name="exam" class="form-control" onchange="this.form.submit()">
+            <option value="">— All Exams —</option>
+            {% for ex in exams %}
+            <option value="{{ ex.pk }}" {% if selected_exam_id == ex.pk|stringformat:"s" %}selected{% endif %}>
+              {{ ex.name }} ({{ ex.exam_type }}) — {{ ex.exam_date }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <input type="hidden" name="subject" value="{{ selected_subject_id }}"/>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if subject_stats %}
+<!-- KPI Cards -->
+<div class="stats-grid" style="margin-bottom:22px;">
+  <div class="stat-card c-indigo">
+    <div class="stat-info">
+      <div class="stat-value">{{ subject_stats.total }}</div>
+      <div class="stat-label">Total Appeared</div>
+    </div>
+    <div class="stat-icon-wrap c-indigo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+  </div>
+  <div class="stat-card c-emerald">
+    <div class="stat-info">
+      <div class="stat-value">{{ subject_stats.pass }}</div>
+      <div class="stat-label">Passed</div>
+    </div>
+    <div class="stat-icon-wrap c-emerald">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+  </div>
+  <div class="stat-card c-red">
+    <div class="stat-info">
+      <div class="stat-value">{{ subject_stats.fail }}</div>
+      <div class="stat-label">Failed</div>
+    </div>
+    <div class="stat-icon-wrap c-red">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    </div>
+  </div>
+  <div class="stat-card c-amber">
+    <div class="stat-info">
+      <div class="stat-value">{{ subject_stats.pass_percent }}%</div>
+      <div class="stat-label">Pass Rate</div>
+    </div>
+    <div class="stat-icon-wrap c-amber">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    </div>
+  </div>
+  <div class="stat-card c-blue">
+    <div class="stat-info">
+      <div class="stat-value">{{ subject_stats.avg_marks }}</div>
+      <div class="stat-label">Avg Marks</div>
+    </div>
+    <div class="stat-icon-wrap c-blue">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </div>
+  </div>
+  <div class="stat-card c-purple">
+    <div class="stat-info">
+      <div class="stat-value">{{ subject_stats.highest }}</div>
+      <div class="stat-label">Highest Marks</div>
+    </div>
+    <div class="stat-icon-wrap c-purple">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="grid-2" style="margin-bottom:22px;">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+        Grade Distribution
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="chart-container" style="height:220px;">
+        <canvas id="gradeChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Pass vs Fail
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="chart-container" style="height:220px;">
+        <canvas id="pfChart"></canvas>
+      </div>
+      <div style="display:flex;gap:20px;justify-content:center;margin-top:12px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;">
+          <span style="width:12px;height:12px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+          <span style="color:var(--text-secondary);">Pass — <strong>{{ subject_stats.pass }}</strong></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;">
+          <span style="width:12px;height:12px;border-radius:50%;background:#EF4444;display:inline-block;"></span>
+          <span style="color:var(--text-secondary);">Fail — <strong>{{ subject_stats.fail }}</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Results Table -->
+{% if report_results %}
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Detailed Results
+    </div>
+    <span class="badge badge-primary">{{ report_results.count }} record{{ report_results.count|pluralize }}</span>
+  </div>
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Student</th><th>Student ID</th><th>Marks</th><th>%</th><th>Grade</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for r in report_results %}
+        <tr>
+          <td style="color:var(--text-muted);font-size:12px;">{{ forloop.counter }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:9px;">
+              <div class="avatar avatar-sm">{{ r.student.first_name.0 }}{{ r.student.last_name.0 }}</div>
+              <a href="{% url 'student-detail' r.student.pk %}" style="color:var(--primary);font-weight:600;">{{ r.student.full_name }}</a>
+            </div>
+          </td>
+          <td><span class="badge badge-muted">{{ r.student.student_id }}</span></td>
+          <td style="font-weight:600;text-align:center;">{% if r.is_absent %}<span class="badge badge-muted">Absent</span>{% else %}{{ r.marks_obtained }}{% endif %}</td>
+          <td style="text-align:center;font-weight:600;{% if r.percentage >= 80 %}color:var(--success);{% elif r.percentage >= 60 %}color:var(--info);{% elif r.percentage >= 40 %}color:var(--warning);{% else %}color:var(--danger);{% endif %}">{{ r.percentage }}%</td>
+          <td>
+            <span class="badge {% if r.grade == 'A+' or r.grade == 'A' %}badge-success{% elif r.grade == 'F' %}badge-danger{% elif r.grade == 'AB' %}badge-muted{% elif r.grade == 'B+' or r.grade == 'B' %}badge-info{% else %}badge-warning{% endif %}">{{ r.grade }}</span>
+          </td>
+          <td>{% if r.is_pass %}<span class="badge badge-success">Pass</span>{% else %}<span class="badge badge-danger">Fail</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="card">
+  <div class="card-body">
+    <div class="empty-state" style="padding:60px;">
+      <div class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <h3>Select a Subject to View Report</h3>
+      <p>Choose a subject from the filter above to generate an academic performance report.</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% if subject_stats %}
+<script>
+const gradeData = {{ grade_distribution|safe }};
+const labels = gradeData.map(g => g.grade);
+const counts = gradeData.map(g => g.count);
+const colors = ['rgba(16,185,129,0.8)','rgba(52,211,153,0.8)','rgba(59,130,246,0.8)','rgba(96,165,250,0.8)','rgba(245,158,11,0.8)','rgba(252,211,77,0.8)','rgba(239,68,68,0.8)','rgba(156,163,175,0.6)'];
+
+new Chart(document.getElementById('gradeChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{ label: 'Students', data: counts, backgroundColor: colors, borderRadius: 8, borderSkipped: false }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#64748B' }, grid: { display: false }, border: { display: false } },
+      y: { ticks: { color: '#64748B', stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.04)' }, border: { display: false }, beginAtZero: true }
+    }
+  }
+});
+
+new Chart(document.getElementById('pfChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Pass', 'Fail'],
+    datasets: [{ data: [{{ subject_stats.pass }}, {{ subject_stats.fail }}], backgroundColor: ['rgba(16,185,129,0.85)', 'rgba(239,68,68,0.85)'], borderColor: ['#10B981','#EF4444'], borderWidth: 2, hoverOffset: 6 }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false } } }
+});
+</script>
+{% endif %}
+{% endblock %}
